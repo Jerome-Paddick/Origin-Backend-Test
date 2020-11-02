@@ -1,0 +1,50 @@
+version: '3.5'
+
+services:
+  api:
+    container_name: api
+    restart: always
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - flask.env
+      - postgres.env
+      - test_postgres.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api:/usr/src/api
+    depends_on:
+      - "postgres"
+
+  postgres:
+    image: "postgres"
+    container_name: "postgres"
+    env_file:
+      - postgres.env
+#   Maps port 54320 (localhost) to port 5432 on the container.
+    ports:
+      - "54320:5432"
+#   Set a volume some that database is not lost after shutting down the container.
+#    volumes:
+#        - postgres_database:/var/lib/postgresql/data:Z
+
+  local_test_postgres:  # no need for persistent volume
+    image: "postgres"
+    container_name: "local_test_postgres"
+    environment:
+     - POSTGRES_USER=test
+     - POSTGRES_PASSWORD=test
+     - POSTGRES_DB=test_db
+    ports:
+      - "54321:5432"
+
+
+#volumes:
+#    postgres_database:
+#        external: true
+
+
+
+
